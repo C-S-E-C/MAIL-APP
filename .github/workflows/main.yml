@@ -1,0 +1,51 @@
+name: scorecode
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  score-code:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: JET2HOLIDAY
+        run: echo "DARLING HOLD MY HAND🥵‼️🗣️🗣️NOTHING BEATS A JET 2 HOLIDAY 🔥😭🙏🔛🔝🔝🗣️🗣️🗣️🗣️AND RIGHT NOW YOU SAVE 50 POUNDS 💷💷💷 PER PERSON🗣🔊🔊🔥‼️‼️‼️‼️THAT'S 200 💷 💷 💷 OFF FOR A FAMILY OF 4 🗣️🗣️🗣️🔥🔥🔥💯 💯 💯💃🏻💃🏻💃🏻💃🏻💃🏻"
+        
+      - name: Install Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.21'
+          
+      - name: Install fuck-u-code
+        run: go install github.com/Done-0/fuck-u-code/cmd/fuck-u-code@latest
+        
+      - name: Scan package(s)
+        run: |
+          export PATH="$PATH:$(go env GOPATH)/bin"
+          fuck-u-code analyze --verbose . > score.txt
+          cat score.txt
+          
+      - name: Upload result
+        uses: actions/upload-artifact@v4
+        with:
+          name: score
+          path: score.txt
+          
+      - name: getscore
+        run: |
+          OUTPUT=$(fuck-u-code analyze -s .)
+          SCORE_LINE=$(echo "$OUTPUT" | grep "总体评分:")
+          SCORE=$(echo "$SCORE_LINE" | awk -F':' '{print $2}' | awk '{print $1}' | tr -d '/100')
+          echo "score: $SCORE" > package.yaml
+          echo "提取的分数: $SCORE"
+          cat package.yaml
+          
+      - name: commit score
+        uses: stefanzweifel/git-auto-commit-action@v6
+        with:
+          commit_message: "Update code quality score"
+          branch: main
+          commit_user_name: shit-code-score
